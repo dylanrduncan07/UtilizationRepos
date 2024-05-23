@@ -32,9 +32,10 @@ def fetch_Smarking(location_id, date, SMToken):
     }
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        data = response.json()['value'][0]['value']
-        max_value = max(data)
-        return {'Building ID': location_id, 'Date': date, 'Max Occupancy': max_value}
+        data = response.json()
+        if 'value' in data and data['value']:  # Check if 'value' exists and is not empty
+            max_value = max(data['value'][0]['value'])
+            return {'Building ID': location_id, 'Date': date, 'Max Occupancy': max_value}
     return None
 
 # Filter out weekends
@@ -43,7 +44,7 @@ def is_weekday(date):
 
 # Set start & end dates
 start_date = datetime(2024, 1, 1)
-end_date = datetime(2024, 4, 26)
+end_date = datetime(2024, 5, 22)
 
 # Initialize empty list to store data
 data_list = []
@@ -56,12 +57,21 @@ id_mapping = {
     'SCzEUw9HvTL4ICdUPwOf' : '8401',
     'YbsoSfHgduDXf6C9PqvO' : '24901',
     's1LHCkw20XTYVHzV9LuR' : '7001',
+    'AMf3W2qg1f8YSZbdGq5n' : '1601',
+    'T84Q2oYO96fLVLFjMdNm' : '2501',
+    'o33kcembZ7LCuD6O5xfV' : '13601',
+    'qyUNEuvTAGBdIGCKWcY8' : '15801',
     '200600' : '10901',
     '455515' : '10601',
     '695676' : '10801',
     '487841' : '13401',
     '450100' : '35001',
-    '489363' : '7601'
+    '489363' : '7601',
+    '200932' : '44101',
+    '738098' : '17001',
+    '842334' : '48101',
+    '374265' : '48301',
+    '844076' : '13901'
 }
 
 
@@ -73,7 +83,7 @@ while current_date <= end_date:
         XK_data = fetch_XK(formatted_date, XK_token)
         if XK_data is not None:
             data_list.append(XK_data)
-        for location_id in range(1, 7):
+        for location_id in range(1, 11):
             sm_data = fetch_Smarking(os.getenv(f'LocationID{location_id}'), current_date, SM_token)
             if sm_data is not None:
                 data_list.append(pd.DataFrame([sm_data]))
